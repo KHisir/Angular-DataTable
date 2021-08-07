@@ -1,0 +1,15 @@
+export enum ColumnType {
+  Default = 0,
+  Text = 1,
+  TextArea = 2,
+  Number = 3,
+  Date = 4,
+  Checkbox = 5,
+  Button = 6,
+  Progressbar = 7,
+  ProgressbarSlim = 8,
+  Image = 9,
+  Icon = 10,
+  Select = 11,
+  Multiselect = 12,
+}

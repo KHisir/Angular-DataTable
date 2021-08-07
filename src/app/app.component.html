@@ -1,0 +1,11 @@
+<app-cc-data-table
+  [parent]="this"
+  [columns]="columns"
+  [data]="data"
+  (searchTriggered)="onSearch($event)"
+  (sortTriggered)="onSort($event)"
+  (paginationTriggered)="onPaged($event)"
+  (valueChanged)="valueOnChanged($event)"
+>
+</app-cc-data-table>
+<router-outlet></router-outlet>

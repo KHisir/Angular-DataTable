@@ -1,0 +1,127 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css"
+  integrity="sha384-OLYO0LymqQ+uHXELyx93kblK5YIS3B2ZfLGBmsJaUyor7CpMTBsahDHByqSuWW+q" crossorigin="anonymous">
+
+<link href="https://fonts.googleapis.com/css?family=Quicksand:400,700" rel="stylesheet">
+
+<div class="table-wrapper" [style.height]="height" #tableContainer>
+  <!-- <virtual-scroller #scroll [items]="pagedItems" [parentScroll]="parentElem" [modifyOverflowStyleOfParentScroll]="true"> -->
+    <table [class.table-striped]="stripedRows === true" [class.table-bordered]="bordered === true">
+      <thead #header>
+        <tr [ngClass]="{'text-align-left': textAlign === 'left', 'text-align-center': textAlign === 'center', 'text-align-right': textAlign === 'right'}">
+          <th [style.min-width.px]="indexColumnWidth" [style.max-width.px]="indexColumnWidth" *ngIf="showIndexColumn === true && columns && columns.length > 0"><span class="column-title alone">#</span></th>
+          <th scope="col" [attr.id]="column.Prop" *ngFor="let column of columns" [class.d-none]="column.Enabled === false" [style.min-width.px]="column.Width" [style.max-width.px]="column.Width">
+            <span class="ui-column-resizer" (mousedown)="onMouseDown($event)" (mouseup)="onMouseUp($event)" draggable="false"></span>
+            <span class="column-title" [class.alone]="column.ShowSearch === false && column.Type !== ColumnType.Checkbox" (click)="column.sort(this)" title="{{column.Name}}">{{column.Name}}<small class="unit-info" *ngIf="column.Unit !== ''">&nbsp;[{{column.Unit}}]</small><i class="sort-icon fas" [ngClass]="{'fa-sort-amount-down-alt': column.SortType === SortType.Asc, 'fa-sort-amount-up': column.SortType === SortType.Desc, '': column.SortType === SortType.None}"></i></span>
+            <!-- <div class="search-box" *ngIf="column.ShowSearch === true">
+              <input type="search" [(ngModel)]="column.SearchText" (keyup.enter)="column.search(this)" placeholder="search..."> 
+              <button type="button" (click)="column.search(this)" title="search"><i class="fas fa-search"></i></button>
+            </div> -->
+
+            <div class="kh-search-box" *ngIf="column.ShowSearch === true">
+              <input type="search" [(ngModel)]="column.SearchText" (keyup.enter)="column.search(this)" placeholder="Search">
+              <button type="button" (click)="column.SearchText = ''"><i class="fas fa-times"></i></button>
+              <button type="button" (click)="column.search(this)" title="Search"><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="kh-checkbox" *ngIf="column.Type === ColumnType.Checkbox">
+              <input (change)="checkAll(column, $event)" class="inp-cbx" [attr.id]="column.Prop + '-' + componentId" type="checkbox"
+                style="display: none;" /><label class="cbx" [attr.for]="column.Prop + '-' + componentId"><span><svg width="12px"
+                    height="9px" viewbox="0 0 12 9">
+                    <polyline points="1 5 4 8 11 1"></polyline>
+                  </svg></span><span></span></label>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="glowTableBody" #container>
+        <tr *ngFor="let row of rows; let rowIndex = index" [class.frozen-rows]="frozenRows > 0 && (rowIndex + 1) === frozenRows" [style.color]="row.Color" [style.background-color]="row.BackgroundColor" [ngClass]="{'text-align-left': textAlign === 'left', 'text-align-center': textAlign === 'center', 'text-align-right': textAlign === 'right'}">
+          <th scope="row" *ngIf="showIndexColumn === true" [style.min-width.px]="indexColumnWidth" [style.max-width.px]="indexColumnWidth" [ngClass]="{'text-align-left': textAlign === 'left', 'text-align-center': textAlign === 'center', 'text-align-right': textAlign === 'right'}">{{rowIndex + 1}}</th>
+          <td *ngFor="let column of columns; let columnIndex = index" [attr.id]="column.Prop + '-' + rowIndex + '-' + columnIndex" [class.frozen-columns]="frozenColumns > 0 && (columnIndex + 1) === frozenColumns" [class.d-none]="column.Enabled === false" class="text-truncate" [style.width.px]="column.Width" [attr.title]="getCellTitle(column, row)" [style.background-color]="setCondition(column, row, (column.Prop + '-' + rowIndex + '-' + columnIndex))" [style.color]="setCondition(column, row, (column.Prop + '-' + rowIndex + '-' + columnIndex))" [ngClass]="{'text-align-left': textAlign === 'left', 'text-align-center': textAlign === 'center', 'text-align-right': textAlign === 'right'}">
+            
+            <span *ngIf="column.Type === ColumnType.Default">{{getCellValue(column, row)}}</span>
+            
+            <input [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Text" type="text" [value]="getCellValue(column, row)" (keyup.enter)="setValue(column, rowIndex, $event)" [readonly]="setCondition(column, row, (rowIndex + '-' + columnIndex))">
+            
+            <input [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Number" type="number" [value]="getCellValue(column, row)" [readonly]="setCondition(column, row, (rowIndex + '-' + columnIndex))">
+
+            <textarea [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.TextArea" type="text" [value]="getCellValue(column, row)" [readonly]="setCondition(column, row, (rowIndex + '-' + columnIndex))"></textarea>
+
+            <div class="kh-checkbox" *ngIf="column.Type === ColumnType.Checkbox">
+              <input [value]="getCellValue(column, row)" (change)="setValue(column, rowIndex, $event)" [checked]="getCellValue(column, row)" class="inp-cbx" [attr.id]="column.Prop + '-' + rowIndex + '-' + componentId" type="checkbox"
+                style="display: none;" /><label class="cbx" [attr.for]="column.Prop + '-' + rowIndex + '-' + componentId"><span><svg width="12px"
+                    height="9px" viewbox="0 0 12 9">
+                    <polyline points="1 5 4 8 11 1"></polyline>
+                  </svg></span><span></span></label>
+            </div>
+
+            <button [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Button" (click)="column.call(this, column.FunctionName, row)" [disabled]="setCondition(column, row, (rowIndex + '-' + columnIndex))">{{column.ButtonText}}</button>
+
+            <div *ngIf="column.Type === ColumnType.Progressbar" class="kh-progress">
+              <div class="progress-bar" [style.width.%]="getCellValue(column, row)">{{getCellValue(column, row)}}%</div>
+            </div>
+
+            <div *ngIf="column.Type === ColumnType.ProgressbarSlim" class="kh-progress slim">
+              <div class="progress-bar" [style.width.%]="getCellValue(column, row)"></div>
+            </div>
+
+            <img *ngIf="column.Type === ColumnType.Image" [attr.src]="getCellValue(column, row)" alt="">
+          
+            <span *ngIf="column.Type === ColumnType.Icon" class="{{getCellValue(column, row)}}"></span>
+
+            <!-- <div class="select-box" *ngIf="column.Type === ColumnType.Select"> -->
+              <select [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Select" (change)="setValue(column, rowIndex, $event)" [disabled]="setCondition(column, row, (rowIndex + '-' + columnIndex))">
+                <option *ngFor="let c of column.SelectOptions" [value]="c.Key" [selected]="getCellValue(column, row) === c.Key">{{c.Value}}</option>
+              </select>
+            <!-- </div> -->
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div>
+      <app-cc-paginator [length]="data.length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [maxDisplayedTotalPages]="maxDisplayedTotalPages" [bordered]="paginatorBordered" (page)="pagerOnChange($event)"></app-cc-paginator>
+    </div>
+  <!-- </virtual-scroller> -->
+  
+  <div id="loadingIndicator" [hidden]="showLoadingIndicator === false">
+    <div class="loader"></div>
+  </div>
+
+  <div id="column-selector">
+    <div id="column-selector-mover">
+      <i class="fas fa-arrows-alt"></i>
+    </div>
+    <button (click)="showColumnSelection = !showColumnSelection">
+      <i class="fa fa-ellipsis-v"></i>
+    </button>
+  </div>
+
+  <div id="column-selection" [hidden]="showColumnSelection === false">
+    <div *ngIf="showColumnSelection === true" [@panelInOut]>
+      <div id="header">
+        <h3>Columns</h3>
+      </div>
+
+      <div id="content">
+        <div class="kh-checkbox" *ngFor="let column of columns; let columnIndex = index">
+          <input [(ngModel)]="column.Enabled" class="inp-cbx" [attr.id]="columnIndex + '-' + componentId" type="checkbox"
+            style="display: none;" /><label class="cbx" [attr.for]="columnIndex + '-' + componentId"><span><svg width="12px"
+                height="9px" viewbox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg></span><span>{{column.Name}}</span></label>
+        </div>
+      </div>
+      <div id="footer">
+        <div class="kh-checkbox">
+          <input [(ngModel)]="columnsFitToContent" class="inp-cbx" [attr.id]="'fitToContent-' + componentId" type="checkbox"
+          style="display: none;" /><label class="cbx" [attr.for]="'fitToContent-' + componentId"><span><svg width="12px"
+              height="9px" viewbox="0 0 12 9">
+              <polyline points="1 5 4 8 11 1"></polyline>
+            </svg></span><span>Fit to content</span></label>
+        </div>
+
+        <button class="secondary large" (click)="closeColumnSelection()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
