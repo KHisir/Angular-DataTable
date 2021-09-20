@@ -2,7 +2,6 @@ import { ColumnType } from '../columnType';
 import { SortType } from '../sortType';
 import { Condition } from '../condition/condition';
 import { Sorter } from '../sorter';
-import { Pager } from '../../cc-paginator/pager';
 
 export class Column {
   public Prop: string;
@@ -98,7 +97,7 @@ export class Column {
       }
 
       // tslint:disable-next-line:only-arrow-functions
-      const data = contex.data.filter(function(item: any) {
+      contex.data = contex.rawData.filter(function(item: any) {
         for (const key in filter) {
           if (item[key] === undefined || !String(item[key]).toLowerCase().includes(String(filter[key]).toLowerCase())) {
             return false;
@@ -106,16 +105,12 @@ export class Column {
         }
         return true;
       });
-      contex.pager = new Pager(contex.pager.PageSize, contex.pager.TotalItems, contex.pager.MaxDisplayedTotalPages);
-      contex.pager.TotalItems = data.length;
-      contex.pager = contex.pagerService.getPager(contex.pager);
-      contex.rows = data.slice(
-        contex.pager.StartIndex,
-        contex.pager.EndIndex + 1
-      );
+
+      contex.rows = contex.data;
     } else {
       // contex.searchTriggered.emit(contex.columns);
       contex.searchTriggered.emit(this);
+      
     }
   }
 }

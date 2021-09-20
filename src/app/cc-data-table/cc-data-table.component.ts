@@ -23,7 +23,7 @@ import { SortType } from './model/sortType';
   ]
 })
 export class CcDataTableComponent implements OnInit {
-  private _data: any;
+  private _data: any[] = [];
   private _column: any[] = [];
   @Input() parent: any;
   @Input() height: string = '500px'; // For automatic adaptation to your outer container => here 100% and outside any value as px!
@@ -45,6 +45,10 @@ export class CcDataTableComponent implements OnInit {
   @Input()
   public set data(v: any) {
     this._data = v;
+    
+    if (this.rawData.length === 0 && this._data.length > 0) {
+      this.rawData = v; // Object.assign([], v);
+    }
 
     if (v !== undefined) {
       try {
@@ -95,10 +99,13 @@ export class CcDataTableComponent implements OnInit {
   SortType: any = SortType;
 
   pagedItems: any[] = [];
+  rawData: any[] = [];
   rows: any;
 
   showColumnSelection: boolean = false;
   columnsFitToContent: boolean = false;
+
+  self = this;
 
   @ViewChild('tableContainer', { static: true }) elem!: ElementRef;
 

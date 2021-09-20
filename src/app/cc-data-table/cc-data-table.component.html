@@ -11,16 +11,16 @@
           <th [style.min-width.px]="indexColumnWidth" [style.max-width.px]="indexColumnWidth" *ngIf="showIndexColumn === true && columns && columns.length > 0"><span class="column-title alone">#</span></th>
           <th scope="col" [attr.id]="column.Prop" *ngFor="let column of columns" [class.d-none]="column.Enabled === false" [style.min-width.px]="column.Width" [style.max-width.px]="column.Width">
             <span class="ui-column-resizer" (mousedown)="onMouseDown($event)" (mouseup)="onMouseUp($event)" draggable="false"></span>
-            <span class="column-title" [class.alone]="column.ShowSearch === false && column.Type !== ColumnType.Checkbox" (click)="column.sort(this)" title="{{column.Name}}">{{column.Name}}<small class="unit-info" *ngIf="column.Unit !== ''">&nbsp;[{{column.Unit}}]</small><i class="sort-icon fas" [ngClass]="{'fa-sort-amount-down-alt': column.SortType === SortType.Asc, 'fa-sort-amount-up': column.SortType === SortType.Desc, '': column.SortType === SortType.None}"></i></span>
+            <span class="column-title" [class.alone]="column.ShowSearch === false && column.Type !== ColumnType.Checkbox" (click)="column.sort(self)" title="{{column.Name}}">{{column.Name}}<small class="unit-info" *ngIf="column.Unit !== ''">&nbsp;[{{column.Unit}}]</small><i class="sort-icon fas" [ngClass]="{'fa-sort-amount-down-alt': column.SortType === SortType.Asc, 'fa-sort-amount-up': column.SortType === SortType.Desc, '': column.SortType === SortType.None}"></i></span>
             <!-- <div class="search-box" *ngIf="column.ShowSearch === true">
               <input type="search" [(ngModel)]="column.SearchText" (keyup.enter)="column.search(this)" placeholder="search..."> 
               <button type="button" (click)="column.search(this)" title="search"><i class="fas fa-search"></i></button>
             </div> -->
 
             <div class="kh-search-box" *ngIf="column.ShowSearch === true">
-              <input type="search" [(ngModel)]="column.SearchText" (keyup.enter)="column.search(this)" placeholder="Search">
+              <input type="search" [(ngModel)]="column.SearchText" (keyup.enter)="column.search(self)" placeholder="Search">
               <button type="button" (click)="column.SearchText = ''"><i class="fas fa-times"></i></button>
-              <button type="button" (click)="column.search(this)" title="Search"><i class="fas fa-search"></i></button>
+              <button type="button" (click)="column.search(self)" title="Search"><i class="fas fa-search"></i></button>
             </div>
 
             <div class="kh-checkbox" *ngIf="column.Type === ColumnType.Checkbox">
@@ -54,7 +54,7 @@
                   </svg></span><span></span></label>
             </div>
 
-            <button [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Button" (click)="column.call(this, column.FunctionName, row)" [disabled]="setCondition(column, row, (rowIndex + '-' + columnIndex))">{{column.ButtonText}}</button>
+            <button [attr.id]="rowIndex + '-' + columnIndex" *ngIf="column.Type === ColumnType.Button" (click)="column.call(self, column.FunctionName, row)" [disabled]="setCondition(column, row, (rowIndex + '-' + columnIndex))">{{column.ButtonText}}</button>
 
             <div *ngIf="column.Type === ColumnType.Progressbar" class="kh-progress">
               <div class="progress-bar" [style.width.%]="getCellValue(column, row)">{{getCellValue(column, row)}}%</div>

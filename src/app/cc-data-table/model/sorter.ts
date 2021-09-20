@@ -6,11 +6,13 @@ export class Sorter {
     reverse: boolean,
     sortBy: string = '',
     isNumericSort?: boolean,
-    isBooleanSort?: boolean
+    isBooleanSort?: boolean,
+    isDateSort?: boolean
   ): T[] {
     sortBy = sortBy; // by default null
     isNumericSort = isNumericSort || false; // by default text sort
     isBooleanSort = isBooleanSort || false; // by default text sort
+    isDateSort = isDateSort || false; // by default text sort
     reverse = reverse || false; // by default no reverse
 
     const reversed = reverse ? -1 : 1;
@@ -39,6 +41,18 @@ export class Sorter {
           return reversed * (a - b);
         });
       }
+    } else if (isDateSort) {
+      if (sortBy !== '' && sortBy !== null) {
+        // tslint:disable-next-line:only-arrow-functions
+        list.sort(function(a: any, b: any) {
+          return reversed * (a[sortBy].valueOf() - b[sortBy].valueOf());
+        });
+      } else {
+        // tslint:disable-next-line:only-arrow-functions
+        list.sort(function(a: any, b: any) {
+          return reversed * (a.valueOf() - b.valueOf());
+        });
+      }
     } else {
       if (sortBy !== '' && sortBy !== null) {
         // tslint:disable-next-line:only-arrow-functions
@@ -58,12 +72,5 @@ export class Sorter {
     }
 
     return list;
-  }
-
-  static sortDate(list: any, sortBy: any) {
-    const sortedArray = list.sort(
-      (a: any, b: any) => a[sortBy].valueOf() - b[sortBy].valueOf()
-    );
-    return sortedArray;
   }
 }
