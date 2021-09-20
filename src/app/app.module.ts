@@ -15,8 +15,7 @@ import { FilterPipe } from './cc-data-table/pipes/filter.pipe';
     AppComponent,
       CcDataTableComponent,
       CcPaginatorComponent,
-      FilterPipe,
-      
+      FilterPipe
    ],
   imports: [
     BrowserModule,
